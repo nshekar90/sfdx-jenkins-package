@@ -1,45 +1,17 @@
-#.github/workflows/main.yml
-name: Scratch org for review
-on: pull_request
-
+name: GitHub Actions Demo
+on: [push]
 jobs:
-  build:
+  Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-      if: github.event.action == 'opened' || github.event.action == 'synchronize'
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.x'
-
-    - name: Install Salesforce CLI
-      run: |
-        npm install sfdx-cli
-        node_modules/sfdx-cli/bin/run --version
-        node_modules/sfdx-cli/bin/run plugins --core
-      
-    - name: Authenticate DevHub
-      run: |
-        echo "${JWT_SECRET}" > secrets.JWT_SECRET
-        node_modules/sfdx-cli/bin/run force:auth:jwt:grant --clientid ${{ secrets.JWT_KEY }} --jwtkeyfile server.key --username ${{ secrets.JWT_ORG_USERNAME}} --setdefaultdevhubusername -a devhub
-      env:
-        JWT_SECRET: ${{ secrets.JWT_SECRET}}
-      
-    - name: Define CI org
-      run: node_modules/sfdx-cli/bin/run force:org:create -v devhub -s -f config/project-scratch-def.json -a ciorg -d 1
-
-    - name: Deploy source
-      run: node_modules/sfdx-cli/bin/run force:source:push -u ciorg
-
-    - name: Run Apex test
-      run: node_modules/sfdx-cli/bin/run force:apex:test:run -c -r human
-
-
-
-    - name: Comment login url
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PULL_REQUEST_COMMENT_URL:  ${{ github.event.pull_request._links.comments.href }}
-      run: |
-        CIORG_LOGIN_URL=$(node_modules/sfdx-cli/bin/run force:org:open -u ciorg -r) 
-        curl -X POST -H 'Content-Type:application/json' -d "{\"body\":\"${CIORG_LOGIN_URL}\"}" ${PULL_REQUEST_COMMENT_URL}?access_token=${GITHUB_TOKEN}
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
